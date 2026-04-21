@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Amortization Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <h1>Loan Calculator</h1>
+        <p>Validate inputs, calculate monthly amortization, and visualize yearly principal vs interest.</p>
+      </header>
+
+      <section class="card">
+        <form id="loanForm" class="form-grid" novalidate>
+          <label>
+            Principal ($)
+            <input id="principal" name="principal" type="number" min="0.01" step="0.01" required />
+          </label>
+          <label>
+            Annual Rate (%)
+            <input id="annualRate" name="annualRate" type="number" min="0" step="0.01" required />
+          </label>
+          <label>
+            Term (Years)
+            <input id="years" name="years" type="number" min="1" max="50" step="1" required />
+          </label>
+          <label>
+            Start Month
+            <input id="startMonth" name="startMonth" type="number" min="1" max="12" step="1" required />
+          </label>
+          <label>
+            Start Year
+            <input id="startYear" name="startYear" type="number" min="1900" max="2200" step="1" required />
+          </label>
+          <div class="form-actions">
+            <button type="submit">Calculate</button>
+          </div>
+        </form>
+        <div id="message" class="message" role="alert" aria-live="polite"></div>
+      </section>
+
+      <section class="metrics card" id="summaryCards">
+        <div>
+          <h3>Monthly Payment</h3>
+          <p id="monthlyPayment">$0.00</p>
+        </div>
+        <div>
+          <h3>Total Interest</h3>
+          <p id="totalInterest">$0.00</p>
+        </div>
+        <div>
+          <h3>Total Paid</h3>
+          <p id="totalPaid">$0.00</p>
+        </div>
+      </section>
+      <section class="card chart-card">
+        <div class="chart-head">
+          <h2>Results Chart</h2>
+          <label for="chartMode">Chart View</label>
+          <select id="chartMode">
+            <option value="stackedAnnual">Annual Principal vs Interest (Stacked)</option>
+            <option value="cumulativeInterest">Cumulative Interest by Year</option>
+            <option value="endingBalance">Ending Balance by Year</option>
+          </select>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="yearlyChart"></canvas>
+        </div>
+      </section>
+      <section class="card table-card">
+        <h2>Monthly Amortization Schedule</h2>
+        <div class="result-actions">
+          <button type="button" id="exportCsvBtn">Export CSV</button>
+          <button type="button" id="printReportBtn">Printable Report</button>
+        </div>
+        <div class="table-wrap">
+          <table id="scheduleTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Month</th>
+                <th>Payment</th>
+                <th>Principal</th>
+                <th>Interest</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

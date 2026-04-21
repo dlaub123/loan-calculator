@@ -1,0 +1,258 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #1b2430;
+  --muted: #5a6777;
+  --accent: #2358d6;
+  --accent-2: #4f7ef1;
+  --danger: #b42318;
+  --line: #d8e0eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(160deg, #e9eff9 0%, var(--bg) 45%, #f8faff 100%);
+  color: var(--text);
+}
+
+.page-shell {
+  width: min(1100px, 94vw);
+  margin: 1.2rem auto 2.4rem auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  background: linear-gradient(135deg, #22418f, #2f64d9 55%, #6c96ff);
+  color: #fff;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 10px 25px rgba(20, 44, 92, 0.2);
+}
+
+.hero h1 {
+  margin: 0;
+}
+
+.hero p {
+  margin: 0.45rem 0 0;
+  opacity: 0.95;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 7px 16px rgba(19, 34, 65, 0.08);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.form-grid label {
+  font-size: 0.88rem;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+input {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem 0.6rem;
+  font-size: 0.95rem;
+}
+
+select {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.5rem 0.55rem;
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+input:focus {
+  outline: 2px solid #acc3ff;
+  border-color: var(--accent-2);
+}
+
+.form-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  margin-top: 0.35rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+button {
+  background: linear-gradient(135deg, #2358d6, #3a6fe8);
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.62rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.04);
+}
+
+.message {
+  min-height: 1.1rem;
+  margin-top: 0.65rem;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.metrics h3 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.metrics p {
+  margin: 0.3rem 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.chart-card h2,
+.table-card h2 {
+  margin-top: 0;
+  font-size: 1.08rem;
+}
+
+.chart-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.45rem;
+}
+
+.chart-head h2 {
+  margin-right: auto;
+}
+
+.chart-head label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Fixed height so Chart.js (responsive + maintainAspectRatio: false) does not resize the parent in a loop. */
+.chart-canvas-wrap {
+  position: relative;
+  height: 320px;
+  width: 100%;
+}
+
+.result-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.table-wrap {
+  max-height: 410px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #f6f9ff;
+}
+
+th,
+td {
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid #e3e9f4;
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+th:first-child,
+td:first-child,
+th:nth-child(2),
+td:nth-child(2) {
+  text-align: center;
+}
+
+th:first-child,
+td:first-child {
+  position: sticky;
+  left: 0;
+  background: #ffffff;
+}
+
+thead th:first-child {
+  background: #f6f9ff;
+  z-index: 4;
+}
+
+tbody tr:nth-child(even) {
+  background: #fafcff;
+}
+
+@media (max-width: 850px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .hero,
+  .form-grid,
+  .message,
+  .chart-head,
+  .result-actions {
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #d1d5dd;
+  }
+
+  .table-wrap {
+    max-height: none;
+    overflow: visible;
+  }
+
+  table {
+    min-width: 0;
+  }
+}
