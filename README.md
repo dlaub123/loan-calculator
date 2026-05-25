@@ -18,9 +18,9 @@ Slick loan calculator with:
 
 ```powershell
 cd ...\loan-calculator
-git -clone dlaub123\loan-calculator.git
+git -clone https://github.com/dlaub123/loan-calculator.git
 python -m venv .venv
-.venv\Scripts\Actuvate.ps1
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python app.py
 ```
