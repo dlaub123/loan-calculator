@@ -7,8 +7,7 @@ Slick loan calculator with:
 - Fixed table header for easier scrolling
 - Yearly principal vs interest stacked bar chart
 - Extra chart modes (cumulative interest, ending balance by year)
-- CSV export for amortization schedule
-- Printable report view
+- Excel-ready CSV export (loan summary, monthly schedule, yearly breakdown)
 
 ## Run
 

@@ -6,12 +6,10 @@ const totalInterestEl = document.getElementById("totalInterest");
 const totalPaidEl = document.getElementById("totalPaid");
 const chartModeEl = document.getElementById("chartMode");
 const exportCsvBtn = document.getElementById("exportCsvBtn");
-const printReportBtn = document.getElementById("printReportBtn");
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 let yearlyChart = null;
 let lastResult = null;
-let lastInput = null;
 
 function formatMoney(value) {
   return new Intl.NumberFormat("en-US", {
@@ -192,103 +190,47 @@ function renderChart(result, chartMode) {
   });
 }
 
-function toCsv(rows) {
-  const header = ["Period", "Month", "Year", "Payment", "Principal", "Interest", "Balance"];
-  const body = rows.map((row) => [
-    row.period,
-    monthNames[row.month - 1],
-    row.year,
-    row.payment.toFixed(2),
-    row.principal.toFixed(2),
-    row.interest.toFixed(2),
-    row.balance.toFixed(2),
-  ]);
-  return [header, ...body].map((r) => r.join(",")).join("\n");
+function filenameFromDisposition(header) {
+  if (!header) {
+    return null;
+  }
+  const match = header.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+  return match ? match[1].trim() : null;
 }
 
-function downloadCsv(content) {
-  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const stamp = new Date().toISOString().slice(0, 10);
   link.href = url;
-  link.setAttribute("download", `amortization-${stamp}.csv`);
+  link.setAttribute("download", filename);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
 
-function openPrintableReport(input, result) {
-  const reportWindow = window.open("", "_blank", "noopener,noreferrer");
-  if (!reportWindow) {
-    showMessage("Pop-up blocked. Please allow pop-ups for printable report.");
-    return;
+async function exportCsv(input) {
+  const response = await fetch("/api/export-csv", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+
+  const contentType = response.headers.get("Content-Type") || "";
+  if (!response.ok) {
+    if (contentType.includes("application/json")) {
+      const data = await response.json();
+      throw new Error(data.error || "CSV export failed.");
+    }
+    throw new Error("CSV export failed.");
   }
 
-  const rowsHtml = result.schedule
-    .map(
-      (row) => `
-      <tr>
-        <td>${row.period}</td>
-        <td>${monthNames[row.month - 1]} ${row.year}</td>
-        <td>${formatMoney(row.payment)}</td>
-        <td>${formatMoney(row.principal)}</td>
-        <td>${formatMoney(row.interest)}</td>
-        <td>${formatMoney(row.balance)}</td>
-      </tr>`
-    )
-    .join("");
-
-  reportWindow.document.write(`
-    <!doctype html>
-    <html>
-      <head>
-        <meta charset="UTF-8" />
-        <title>Loan Amortization Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 24px; color: #111827; }
-          h1, h2 { margin-bottom: 8px; }
-          .meta, .summary { display: grid; grid-template-columns: repeat(3, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
-          .card { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; }
-          table { width: 100%; border-collapse: collapse; font-size: 12px; }
-          th, td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: right; }
-          th:nth-child(1), th:nth-child(2), td:nth-child(1), td:nth-child(2) { text-align: center; }
-          thead th { background: #f3f4f6; }
-        </style>
-      </head>
-      <body>
-        <h1>Loan Amortization Report</h1>
-        <div class="meta">
-          <div class="card">Principal: <strong>${formatMoney(input.principal)}</strong></div>
-          <div class="card">Annual Rate: <strong>${input.annualRate}%</strong></div>
-          <div class="card">Term: <strong>${input.years} years</strong></div>
-        </div>
-        <div class="summary">
-          <div class="card">Monthly Payment: <strong>${formatMoney(result.summary.monthlyPayment)}</strong></div>
-          <div class="card">Total Interest: <strong>${formatMoney(result.summary.totalInterest)}</strong></div>
-          <div class="card">Total Paid: <strong>${formatMoney(result.summary.totalPaid)}</strong></div>
-        </div>
-        <h2>Monthly Schedule</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Month</th>
-              <th>Payment</th>
-              <th>Principal</th>
-              <th>Interest</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-      </body>
-    </html>
-  `);
-  reportWindow.document.close();
-  reportWindow.focus();
-  reportWindow.print();
+  const blob = await response.blob();
+  const stamp = new Date().toISOString().slice(0, 10);
+  const filename =
+    filenameFromDisposition(response.headers.get("Content-Disposition")) ||
+    `amortization-${stamp}.csv`;
+  downloadBlob(blob, filename);
 }
 
 async function calculateLoan(payload) {
@@ -312,7 +254,6 @@ form.addEventListener("submit", async (event) => {
   }
 
   try {
-    lastInput = input;
     const data = await calculateLoan(input);
     if (!data.ok) {
       showMessage(data.error || "Calculation failed.");
@@ -338,20 +279,24 @@ if (chartModeEl) {
   });
 }
 
-exportCsvBtn.addEventListener("click", () => {
+exportCsvBtn.addEventListener("click", async () => {
+  clearMessage();
+  const input = readFormValues();
+  const validationError = validateInput(input);
+  if (validationError) {
+    showMessage(validationError);
+    return;
+  }
   if (!lastResult) {
     showMessage("Run a calculation first, then export CSV.");
     return;
   }
-  downloadCsv(toCsv(lastResult.schedule));
-});
 
-printReportBtn.addEventListener("click", () => {
-  if (!lastResult || !lastInput) {
-    showMessage("Run a calculation first, then create a report.");
-    return;
+  try {
+    await exportCsv(input);
+  } catch (err) {
+    showMessage(err.message || "Network error while exporting CSV.");
   }
-  openPrintableReport(lastInput, lastResult);
 });
 
 // Pre-fill with a useful example for first run.

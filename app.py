@@ -1,12 +1,30 @@
 from __future__ import annotations
 
+import csv
+import io
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal, ROUND_HALF_UP, getcontext
 from typing import Any
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
 
 getcontext().prec = 28
+
+MONTH_NAMES = (
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+)
 
 app = Flask(__name__)
 
@@ -158,6 +176,61 @@ def build_amortization(loan: LoanInput) -> dict[str, Any]:
     }
 
 
+def format_money_csv(value: float) -> str:
+    return f"{value:.2f}"
+
+
+def build_csv(loan: LoanInput, result: dict[str, Any]) -> str:
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, lineterminator="\r\n")
+
+    writer.writerow(["Loan Amortization Schedule"])
+    writer.writerow([])
+    writer.writerow(["Principal", format_money_csv(float(loan.principal))])
+    writer.writerow(["Annual Rate (%)", str(loan.annual_rate)])
+    writer.writerow(["Term (Years)", loan.years])
+    writer.writerow(
+        ["Start Date", f"{MONTH_NAMES[loan.start_month - 1]} {loan.start_year}"]
+    )
+    writer.writerow([])
+
+    summary = result["summary"]
+    writer.writerow(["Monthly Payment", format_money_csv(summary["monthlyPayment"])])
+    writer.writerow(["Total Interest", format_money_csv(summary["totalInterest"])])
+    writer.writerow(["Total Paid", format_money_csv(summary["totalPaid"])])
+    writer.writerow(["Loan Months", summary["loanMonths"]])
+    writer.writerow([])
+
+    writer.writerow(
+        ["Period", "Month", "Payment", "Principal", "Interest", "Ending Balance"]
+    )
+    for row in result["schedule"]:
+        writer.writerow(
+            [
+                row["period"],
+                f"{MONTH_NAMES[row['month'] - 1]} {row['year']}",
+                format_money_csv(row["payment"]),
+                format_money_csv(row["principal"]),
+                format_money_csv(row["interest"]),
+                format_money_csv(row["balance"]),
+            ]
+        )
+
+    writer.writerow([])
+    writer.writerow(["Yearly Breakdown"])
+    writer.writerow(["Year", "Principal Paid", "Interest Paid"])
+    for row in result["yearlyBreakdown"]:
+        writer.writerow(
+            [
+                row["year"],
+                format_money_csv(row["principal"]),
+                format_money_csv(row["interest"]),
+            ]
+        )
+
+    return "\ufeff" + buffer.getvalue()
+
+
 @app.route("/", methods=["GET"])
 def index() -> str:
     return render_template("index.html")
@@ -176,6 +249,28 @@ def calculate() -> Any:
         return jsonify({"ok": False, "error": "Unexpected error while calculating."}), 500
 
 
+@app.route("/api/export-csv", methods=["POST"])
+def export_csv() -> Any:
+    try:
+        payload = request.get_json(silent=True) or {}
+        loan = validate_payload(payload)
+        result = build_amortization(loan)
+        csv_text = build_csv(loan, result)
+        filename = f"amortization-{date.today().isoformat()}.csv"
+        return Response(
+            csv_text,
+            mimetype="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+    except ValueError as err:
+        return jsonify({"ok": False, "error": str(err)}), 400
+    except Exception:
+        return jsonify({"ok": False, "error": "Unexpected error while exporting CSV."}), 500
+
+
 if __name__ == "__main__":
     #app.run(debug=True)
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+
