@@ -10,27 +10,19 @@ Slick loan calculator with:
 - CSV export for amortization schedule
 - Printable report view
 
-## Run
+## Run - Simply go to dmlsoftware.pythonanywhere.com - Or:
 
 1. Create a virtual environment (optional but recommended)
 2. Install dependencies
 3. Start Flask app
 
 ```powershell
-cd C:\Users\dmlau\loan-calculator
+cd ...\loan-calculator
+git -clone dlaub123\loan-calculator.git
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Actuvate.ps1
 pip install -r requirements.txt
 python app.py
 ```
 
 Open <http://127.0.0.1:5000>.
-
-## Python on Windows PATH
-
-Python 3.12 was installed to:
-
-- `C:\Users\dmlau\AppData\Local\Programs\Python\Python312`
-- `C:\Users\dmlau\AppData\Local\Programs\Python\Python312\Scripts`
-
-If `python --version` still does not work in an existing terminal, close and reopen the terminal (or sign out/in) so it picks up the updated user PATH.
