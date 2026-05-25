@@ -10,7 +10,8 @@ Slick loan calculator with:
 - CSV export for amortization schedule
 - Printable report view
 
-## Run - Simply go to dmlsoftware.pythonanywhere.com - Or:
+## Run 
+Simply go to <http://dmlsoftware.pythonanywhere.com> - Or:
 
 1. Create a virtual environment (optional but recommended)
 2. Install dependencies
