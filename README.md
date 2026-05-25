@@ -1,6 +1,6 @@
 # Loan Calculator (Python + Web GUI)
 
-Slick loan calculator with:
+Full functional loan calculator with:
 
 - Input validation in both browser and backend
 - Monthly amortization schedule
@@ -9,6 +9,7 @@ Slick loan calculator with:
 - Extra chart modes (cumulative interest, ending balance by year)
 - Tabular export of amortization schedule
 - Printable report view (stub only)
+- Primarily generated with Cursor
 
 ## Run 
 Simply go to <http://dmlsoftware.pythonanywhere.com> - Or:
