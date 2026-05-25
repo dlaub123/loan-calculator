@@ -7,8 +7,8 @@ Slick loan calculator with:
 - Fixed table header for easier scrolling
 - Yearly principal vs interest stacked bar chart
 - Extra chart modes (cumulative interest, ending balance by year)
-- CSV export for amortization schedule
-- Printable report view
+- Tabular export for amortization schedule
+- Printable report view (stub) only
 
 ## Run 
 Simply go to <http://dmlsoftware.pythonanywhere.com> - Or:
