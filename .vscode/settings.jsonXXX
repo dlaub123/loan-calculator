@@ -1,0 +1,4 @@
+{
+    "python.defaultInterpreterPath": "/mnt/c/Users/dmlau/loan-calculator/.venv/bin/python3",
+    "python.terminal.activateEnvInSelectedTerminal": true
+}
