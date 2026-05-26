@@ -9,9 +9,10 @@ Full functional loan calculator with:
 - Extra chart modes (cumulative interest, ending balance by year)
 - Excel-ready CSV export (loan summary, monthly schedule, yearly breakdown)
 - Primarily generated with Cursor
+- (if invoked from Facebook App on iPhone use External browser command to download csv)
 
 ## Run 
-Simply go to <http://dmlsoftware.pythonanywhere.com> - Or:
+Simply go to: <http://dmlsoftware.pythonanywhere.com> - Or:
 
 1. Create a virtual environment (optional but recommended)
 2. Install dependencies
