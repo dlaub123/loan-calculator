@@ -12,7 +12,7 @@ Full functional loan calculator with:
 - (if invoked from Facebook use External browser command to download csv)
 
 ## Run 
-Simply go to <http://dmlsoftware.pythonanywhere.com> - Or:
+Simply go to: <http://dmlsoftware.pythonanywhere.com> - Or:
 
 1. Create a virtual environment (optional but recommended)
 2. Install dependencies
